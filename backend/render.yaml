@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: website-chatbot-api
+    env: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    plan: free
+    envVars:
+      - key: GROQ_API_KEY
+        sync: false
+      - key: CHAT_MODEL
+        value: openai/gpt-oss-120b
+      - key: CHAT_MODEL_FALLBACKS
+        value: groq/compound,openai/gpt-oss-20b,qwen/qwen3.6-27b
+      - key: WEBSITE_NAME
+        value: Your Website
+      - key: BUSINESS_DOMAIN
+        value: product and support assistant
+      - key: BRAND_VOICE
+        value: professional, warm, and concise
+      - key: ALLOWED_ORIGINS
+        value: https://yourdomain.com

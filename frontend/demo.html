@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chatbot Demo</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: Segoe UI, sans-serif;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        background: linear-gradient(135deg, #efe8d9, #d8ebe8);
+      }
+      .card {
+        max-width: 780px;
+        background: #fffef9;
+        border: 1px solid #d7d6cf;
+        border-radius: 16px;
+        padding: 24px;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="card">
+      <h1>Website Chatbot Demo</h1>
+      <p>Use the bottom-right launcher to open chat.</p>
+    </main>
+
+    <script
+      src="./chatbot-widget.js"
+      data-chatbot-widget="true"
+      data-css="./chatbot-widget.css"
+      data-api="http://127.0.0.1:8000"
+      data-title="Website Assistant"
+      data-domain="product and support"
+      data-welcome="Hi! I am your website assistant."
+      data-lead-capture="true"
+      data-lead-after-messages="2"
+      defer
+    ></script>
+  </body>
+</html>
