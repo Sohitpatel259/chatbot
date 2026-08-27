@@ -62,7 +62,7 @@
 
   function cleanSpeechText(text) {
     return text
-      .replace(/[#*./]/g, " ")
+      .replace(/[#*.-_/]/g, " ")
       .replace(/\s+/g, " ")
       .trim();
   }
