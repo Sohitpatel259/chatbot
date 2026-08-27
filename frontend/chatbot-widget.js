@@ -19,6 +19,12 @@
   const showLeadCapture =
     (scriptTag && scriptTag.dataset.leadCapture || "true").toLowerCase() !==
     "false";
+  const voiceInputEnabled =
+    (scriptTag && scriptTag.dataset.voiceInput || "true").toLowerCase() !==
+    "false";
+  const voiceOutputEnabled =
+    (scriptTag && scriptTag.dataset.voiceOutput || "true").toLowerCase() !==
+    "false";
   const cssUrl =
     (scriptTag && scriptTag.dataset.css) ||
     (scriptTag && scriptTag.src
@@ -48,6 +54,44 @@
     bubble.textContent = text;
     container.appendChild(bubble);
     container.scrollTop = container.scrollHeight;
+  }
+
+  function getSpeechLanguage(text) {
+    return /[\u0900-\u097f]/.test(text) ? "hi-IN" : "en-US";
+  }
+
+  function cleanSpeechText(text) {
+    return text
+      .replace(/[#*./]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  function speak(text) {
+    if (!voiceOutputEnabled || !("speechSynthesis" in window) || !text) {
+      return;
+    }
+
+    const speechText = cleanSpeechText(text);
+    if (!speechText) {
+      return;
+    }
+
+    window.speechSynthesis.cancel();
+    const language = getSpeechLanguage(text);
+    const utterance = new SpeechSynthesisUtterance(speechText);
+    utterance.lang = language;
+    utterance.rate = 1;
+    utterance.pitch = 1;
+
+    const matchingVoice = window.speechSynthesis
+      .getVoices()
+      .find((voice) => voice.lang.toLowerCase().startsWith(language.toLowerCase().slice(0, 2)));
+    if (matchingVoice) {
+      utterance.voice = matchingVoice;
+    }
+
+    window.speechSynthesis.speak(utterance);
   }
 
   async function askBot(message, userName) {
@@ -168,6 +212,7 @@
       <div class="cb-messages"></div>
       <form class="cb-input-wrap">
         <input class="cb-input" type="text" placeholder="Type your message..." autocomplete="off" />
+        <button class="cb-voice" type="button" aria-label="Use voice input" title="Use voice input">Mic</button>
         <button class="cb-send" type="submit">Send</button>
       </form>
     `;
@@ -180,7 +225,11 @@
     const messages = panel.querySelector(".cb-messages");
     const form = panel.querySelector(".cb-input-wrap");
     const input = panel.querySelector(".cb-input");
+    const voiceBtn = panel.querySelector(".cb-voice");
     const sendBtn = panel.querySelector(".cb-send");
+    const SpeechRecognition =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
+    let recognition = null;
 
     let detectedName = "";
 
@@ -193,7 +242,60 @@
 
     closeBtn.addEventListener("click", () => {
       panel.classList.remove("open");
+      if (recognition) {
+        recognition.stop();
+      }
+      if ("speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
     });
+
+    if (voiceInputEnabled && SpeechRecognition) {
+      recognition = new SpeechRecognition();
+      recognition.lang = document.documentElement.lang || "en-US";
+      recognition.interimResults = true;
+      recognition.continuous = false;
+
+      recognition.addEventListener("start", () => {
+        voiceBtn.classList.add("listening");
+        voiceBtn.textContent = "Stop";
+        voiceBtn.title = "Stop listening";
+        input.placeholder = "Listening...";
+      });
+
+      recognition.addEventListener("result", (event) => {
+        const transcript = Array.from(event.results)
+          .map((result) => result[0].transcript)
+          .join("");
+        input.value = transcript;
+      });
+
+      recognition.addEventListener("end", () => {
+        voiceBtn.classList.remove("listening");
+        voiceBtn.textContent = "Mic";
+        voiceBtn.title = "Use voice input";
+        input.placeholder = "Type your message...";
+        input.focus();
+      });
+
+      recognition.addEventListener("error", (event) => {
+        if (event.error !== "aborted") {
+          appendMessage(messages, "Voice input was not available. You can still type your message.", "bot");
+        }
+      });
+
+      voiceBtn.addEventListener("click", () => {
+        if (voiceBtn.classList.contains("listening")) {
+          recognition.stop();
+          return;
+        }
+        recognition.start();
+      });
+    } else {
+      voiceBtn.disabled = true;
+      voiceBtn.title = "Voice input is not supported in this browser";
+      voiceBtn.setAttribute("aria-label", "Voice input is not supported in this browser");
+    }
 
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
@@ -218,7 +320,9 @@
 
       try {
         const data = await askBot(message, detectedName);
-        appendMessage(messages, data.answer || "No response received.", "bot");
+        const answer = data.answer || "No response received.";
+        appendMessage(messages, answer, "bot");
+        speak(answer);
 
         if (
           showLeadCapture &&

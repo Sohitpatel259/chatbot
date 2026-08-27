@@ -11,6 +11,7 @@ Features added:
 - Personality/domain customization via environment variables
 - Session conversation memory persisted in SQLite
 - Lead capture form and API (`/api/lead`)
+- Browser voice input and spoken assistant replies using the Web Speech API
 - Production deployment configs (Render, Railway, Docker/VPS)
 
 ## 2) Create Separate Virtual Environment
@@ -75,9 +76,13 @@ Then add this snippet near `</body>`:
   data-domain="your exact business domain"
   data-lead-capture="true"
   data-lead-after-messages="4"
+  data-voice-input="true"
+  data-voice-output="true"
   defer
 ></script>
 ```
+
+Voice features run in the visitor's browser and do not add audio data to the backend. Browser support and microphone permission are required. Set either voice data attribute to `false` to disable that feature.
 
 If your site is on a different domain, keep CORS enabled in the backend as currently configured.
 
