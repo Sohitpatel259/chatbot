@@ -60,19 +60,12 @@
     return /[\u0900-\u097f]/.test(text) ? "hi-IN" : "en-US";
   }
 
-  function cleanSpeechText(text) {
-    return text
-      .replace(/[#*.-_/]/g, " ")
-      .replace(/\s+/g, " ")
-      .trim();
-  }
-
   function speak(text) {
     if (!voiceOutputEnabled || !("speechSynthesis" in window) || !text) {
       return;
     }
 
-    const speechText = cleanSpeechText(text);
+    const speechText = text.replace(/[#*./-]/g, " ").replace(/\s+/g, " ").trim();
     if (!speechText) {
       return;
     }
@@ -321,7 +314,11 @@
       try {
         const data = await askBot(message, detectedName);
         const answer = data.answer || "No response received.";
-        appendMessage(messages, answer, "bot");
+        const displayAnswer = answer
+          .replace(/[#*._\/|-]/g, " ")
+          .replace(/\s+/g, " ")
+          .trim();
+        appendMessage(messages, displayAnswer, "bot");
         speak(answer);
 
         if (
