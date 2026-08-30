@@ -60,7 +60,7 @@ frontend:-
 cd C:\Users\Asus\OneDrive\Desktop\chatbot
 py -m http.server 5500 --directory frontend
 
-link:-http://127.0.0.1:5500/demo.html
+link:-http://127.0.0.1:5500/index.html
 ## 5) Embed In Your Website
 
 Copy `frontend/chatbot-widget.js` and `frontend/chatbot-widget.css` to your website static assets.
