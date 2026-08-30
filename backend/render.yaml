@@ -20,4 +20,4 @@ services:
       - key: BRAND_VOICE
         value: professional, warm, and concise
       - key: ALLOWED_ORIGINS
-        value: https://gramsetuassistant-r1krlho8p-sohitpatel259s-projects.vercel.app/
+        value: https://gramsetuassistant.vercel.app/
