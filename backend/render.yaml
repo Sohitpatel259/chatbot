@@ -20,4 +20,4 @@ services:
       - key: BRAND_VOICE
         value: professional, warm, and concise
       - key: ALLOWED_ORIGINS
-        value: https://yourdomain.com
+        value: https://gramsetuassistant.vercel.app/
